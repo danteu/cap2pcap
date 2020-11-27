@@ -1,0 +1,38 @@
+#!/usr/bin/env sh
+
+set -e
+set -u
+
+cap2pcap_usage () {
+    echo "Usage: cap2pcap [FILE]..."
+    echo "Convert FILEs captured with Microsoft Network Monitor to pcap"
+    exit 0
+}
+
+[ "${#}" -lt 1 ] && cap2pcap_usage
+[ "${1}" = "-h" ] && cap2pcap_usage
+[ "${1}" = "--help" ] && cap2pcap_usage
+
+command -v tshark >> /dev/null
+[ ${?} -ne 0 ] && echo "Could not find 'tshark'" && exit 1
+
+command -v text2pcap >> /dev/null
+[ ${?} -ne 0 ] && echo "Could not find 'text2pcap'" && exit 1
+
+
+for CAP in "${@}"; do
+    [ ! -f "${CAP}" ] && echo "File not found: ${CAP}" && exit 1
+    PCAP=${CAP}.pcap
+    COUNT=0
+    while [ -f "$PCAP" ]; do
+        PCAP=${CAP}.${COUNT}.pcap
+        COUNT=$((COUNT+1))
+    done
+    echo ">>> Converting ${CAP} to ${PCAP}"
+    tshark -x -r "${CAP}" | text2pcap - "${PCAP}"
+    echo ""
+done
+
+unset "${CAP}"
+unset "${PCAP}"
+unset "${COUNT}"
