@@ -4,7 +4,7 @@ set -e
 set -u
 
 cap2pcap_usage () {
-    echo "Usage: cap2pcap [FILE]..."
+    echo "Usage: cap2pcap FILE..."
     echo "Convert FILEs captured with Microsoft Network Monitor to pcap"
     exit 0
 }
